@@ -99,6 +99,7 @@ DINOv3, trained with a reference-to-frame matching objective, demonstrated robus
 ### 4.3 Evaluation of Flow Matching for Pose Estimation
 Flow matching accurately predicted dense NOCS maps and masks, enabling stable pose estimation without iterative sampling. This supports real-time operation when integrated into the full NocsFM pipeline.
 ![image1](images/w2000.png)
+![image1](images/w/o2000.png)
 
 ---
 
