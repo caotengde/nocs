@@ -48,7 +48,9 @@ NocsFM achieves model-free 6D pose estimation and real-time tracking within a si
 Given a clean reference image `I_ref` and the current RGB frame `I_t`,  
 **NocsFM** first employs **DINOv3** as a visual backbone to extract multi-scale features from both images, yielding dense feature embeddings with spatial position encoding:
 
-![equation](https://latex.codecogs.com/svg.image?\Phi_{\mathrm{ref}}\in\mathbb{R}^{C\times H_s\times W_s},\quad\Phi_t\in\mathbb{R}^{C\times H_s\times W_s})
+![equation](https://latex.codecogs.com/svg.image?%5CPhi_%7B%5Cmathrm%7Bref%7D%7D%5Cin%5Cmathbb%7BR%7D%5E%7BC%5Ctimes%20H_s%5Ctimes%20W_s%7D)
+
+![equation](https://latex.codecogs.com/svg.image?%5CPhi_t%5Cin%5Cmathbb%7BR%7D%5E%7BC%5Ctimes%20H_s%5Ctimes%20W_s%7D)
 
 where `C` is the channel dimension and `H_s`, `W_s` denote the downsampled spatial resolution.
 
