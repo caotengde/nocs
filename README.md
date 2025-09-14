@@ -146,3 +146,4 @@ Flow matching accurately predicted dense NOCS maps and masks, enabling stable po
 
 ## 5. Conclusion
 We presented **NocsFM**, a unified framework for category-level 6D object pose estimation and tracking from RGB input. By combining DINOv3-based feature matching, one-shot flow matching for NOCS prediction, and a mask-driven feedback loop, NocsFM requires only a single reference image and no CAD models while operating in real time. Experiments on the CAMERA dataset demonstrate accurate pose estimation and robust long-term tracking, advancing 6D pose estimation toward practical, deployment-ready applications.
+## 6. Reference
