@@ -120,8 +120,7 @@ all without requiring object-specific 3D models or category labels,
 while ensuring **real-time efficiency and high geometric accuracy**.
 
 ### 3.3 Tracking with Mask Feedback
-The predicted foreground mask serves not merely as a per-frame output but also as a key structural component of the geometry–tracking pipeline. Firstly，by separating the object from a cluttered background at pixel-level precision, the mask provides  
-   ![equation](https://latex.codecogs.com/svg.image?high-confidence) observations for downstream 6D pose estimation, effectively suppressing background noise and improving geometric accuracy.
+The predicted foreground mask serves not merely as a per-frame output but also as a key structural component of the geometry–tracking pipeline. Firstly，by separating the object from a cluttered background at pixel-level precision, the mask provides high confidence observations for downstream 6D pose estimation, effectively suppressing background noise and improving geometric accuracy.
 Secondly，the mask is further used to automatically crop a new high-quality reference image  
    ![equation](https://latex.codecogs.com/svg.image?I_t^{5Cmathrm{ref}}),which captures the object’s latest appearance and scale.  This freshly generated reference is fed back into the next round of DINOv3 cross-view feature matching, continuously refreshing the system’s memory of the target.Through this predict-mask → update-reference → re-match cycle, **NocsFM** forms a closed-loop, temporally adaptive tracking system capable of long-term, fully automated operation without manual re-initialization, even under appearance changes or environmental disturbances.
 
@@ -138,17 +137,14 @@ Two losses are monitored during training:
 * **train_loss** – the intrinsic loss of the **flow matching** network,  
   which predicts the latent velocity field.  
   It is defined as the mean squared error (MSE) between the predicted velocity  
-  and the ground-truth derivative:
-![equation](https://latex.codecogs.com/svg.image?%5Cmathcal%7BL%7D_%7Btrain%7D%3D%5Cmathbb%7BE%7D_%7Bz_t%2Ct%7D%5Cbigl%5C%7C%5Cmathbf%7Bv%7D_%5Ctheta%28z_t%2Ct%29-%5Cfrac%7Bd%20z_t%7D%7Bd%20t%7D%5Cbigr%5C%7C_2%5E2)
+  and the ground-truth derivative: ![equation](https://latex.codecogs.com/svg.image?%5Cmathcal%7BL%7D_%7Btrain%7D%3D%5Cmathbb%7BE%7D_%7Bz_t%2Ct%7D%5Cbigl%5C%7C%5Cmathbf%7Bv%7D_%5Ctheta%28z_t%2Ct%29-%5Cfrac%7Bd%20z_t%7D%7Bd%20t%7D%5Cbigr%5C%7C_2%5E2)
 
 * **sample_loss** – the reconstruction loss computed after integrating the flow.  
   It measures the MSE between the predicted NOCS map  
-  and the ground-truth NOCS:
- ![equation](https://latex.codecogs.com/svg.image?\mathcal{L}_{sample}=\mathbb{E}_p\bigl\|\hat{\mathbf{n}}_p-\mathbf{n}_p\bigr\|_2^2)
+  and the ground-truth NOCS: ![equation](https://latex.codecogs.com/svg.image?\mathcal{L}_{sample}=\mathbb{E}_p\bigl\|\hat{\mathbf{n}}_p-\mathbf{n}_p\bigr\|_2^2)
 
 The following plots show the evolution of these two losses over **40 000 training steps**  
 for models trained **with background (red)** and **without background (blue)**:
-
 ![train_loss](images/train_loss.png)
 ![sample_loss](images/sample_loss.png)
 
@@ -157,24 +153,14 @@ for models trained **with background (red)** and **without background (blue)**:
 Under both background-removed and background-retained settings, the two losses (train_loss and sample_loss) converge rapidly, indicating that the latent velocity field and the final NOCS reconstruction are effectively learned. The background-removed setting converges faster during the early training stages. However, by 40 000 steps the sample_loss is almost identical in both settings, showing that the final reconstruction accuracy differs very little. Moreover, when background is retained, the model not only learns the foreground mask prediction well but also accurately recovers the NOCS map, demonstrating that moderate background information does not hinder the final pose estimation quality.
 ### 4.3 Qualitative result of Flow Matching for Pose Estimation
 The following figures present **qualitative results** at different training stages.
-
-The first pair shows the outputs after **2 000 training steps** with and without background.  
-Almost no visible changes can be observed at this early stage.
-
+The first pair shows the outputs after **2 000 training steps** with and without background.  Almost no visible changes can be observed at this early stage.
 ![image1](images/w2000.png)
 ![image2](images/w:o2000.png)
-
-The next pair shows the outputs after **10 000 steps**.  
-In the background-retained setting, the surrounding area gradually darkens while the center brightens,  
-indicating that the network is starting to learn **mask prediction**.  
-In contrast, the background-removed setting has already begun to learn **color reconstruction**.
-
+The next pair shows the outputs after **10 000 steps**.  In the background-retained setting, the surrounding area gradually darkens while the center brightens,  
+indicating that the network is starting to learn **mask prediction**.  In contrast, the background-removed setting has already begun to learn **color reconstruction**.
 ![image3](images/w10000.png)
 ![image4](images/w:o10000.png)
-
-The last pair shows the outputs after **40 000 steps**.  
-Both settings achieve high-quality results that closely match the ground truth.
-
+The last pair shows the outputs after **40 000 steps**.  Both settings achieve high-quality results that closely match the ground truth.
 ![image5](images/w40000.png)
 ![image6](images/w:o40000.png)
 
