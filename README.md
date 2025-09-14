@@ -42,11 +42,7 @@ DiffusionNOCS is a recent exploration of applying generative diffusion models to
 ---
 
 ## 3. Method
-**NocsFM** performs model-free 6D pose estimation and object tracking from RGB input in a single, unified loop. Given a clean reference image of the target object and the current RGB frame, the pipeline includes three stages:
-
-1. **DINOv3 matching**
-2. **Flow matching for NOCS estimation**
-3. **Mask-based tracking**
+NocsFM achieves model-free 6D pose estimation and real-time tracking within a single unified loop, requiring only a clean reference image of the target object and the current RGB frame as input. The system first employs DINOv3 pre-trained visual features to perform cross-view matching between the reference and current frames, automatically localizing the target in cluttered scenes and establishing an initial position together with reliable inter-frame correspondences. Next, it performs geometric reasoning by integrating latent flow matching with the Normalized Object Coordinate Space (NOCS) representation, mapping image pixels in the current frame directly to a normalized 3D coordinate space and estimating the object’s 6D pose through robust Umeyama optimization. Finally, a mask-based closed-loop mechanism continuously updates the target’s position and appearance features, enabling uninterrupted real-time tracking without manual intervention. Thanks to this end-to-end design, NocsFM can deliver stable and accurate pose and trajectory estimates in dynamic, cluttered environments without any object-specific 3D models or category labels.
 
 ### 3.1 DINOv3 Matching
 A clean reference image and the current RGB frame are processed using DINOv3 to localize the target object. Dense feature embeddings from both images are matched to identify the object region, which is cropped and passed to the flow matching module. This step is category-agnostic and does not require predefined templates.
