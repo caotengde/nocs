@@ -133,14 +133,16 @@ Secondly，the mask is further used to automatically crop a new high-quality ref
 The experiments were carried out on an NVIDIA RTX 4090 GPU (24 GB memory).The entire method is implemented in PyTorch, where DINOv3 is used for feature extraction.
 The flow matching network was trained for 40 000 steps on the CAMERA275 dataset, and the overall method was subsequently trained and evaluated on the CAMERA dataset.
 ### 4.2 Comparison of training
-
-
+![training](images/train_loss.png)
+![training](images/sample_loss.png)
 ### 4.3 Evaluation of Flow Matching for Pose Estimation
 Flow matching accurately predicted dense NOCS maps and masks, enabling stable pose estimation without iterative sampling. This supports real-time operation when integrated into the full NocsFM pipeline.
 ![image1](images/w2000.png)
-![image1](images/w:o2000.png)
-
----
+![image2](images/w:o2000.png)
+![image3](images/w10000.png)
+![image4](images/w:o10000.png)
+![image5](images/w40000.png)
+![image6](images/w:o40000.png)
 
 ## 5. Conclusion
 We presented **NocsFM**, a unified framework for category-level 6D object pose estimation and tracking from RGB input. By combining DINOv3-based feature matching, one-shot flow matching for NOCS prediction, and a mask-driven feedback loop, NocsFM requires only a single reference image and no CAD models while operating in real time. Experiments on the CAMERA dataset demonstrate accurate pose estimation and robust long-term tracking, advancing 6D pose estimation toward practical, deployment-ready applications.
