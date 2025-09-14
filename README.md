@@ -156,11 +156,25 @@ for models trained **with background (red)** and **without background (blue)**:
 
 Under both background-removed and background-retained settings, the two losses (train_loss and sample_loss) converge rapidly, indicating that the latent velocity field and the final NOCS reconstruction are effectively learned. The background-removed setting converges faster during the early training stages. However, by 40 000 steps the sample_loss is almost identical in both settings, showing that the final reconstruction accuracy differs very little. Moreover, when background is retained, the model not only learns the foreground mask prediction well but also accurately recovers the NOCS map, demonstrating that moderate background information does not hinder the final pose estimation quality.
 ### 4.3 Qualitative result of Flow Matching for Pose Estimation
-Flow matching accurately predicted dense NOCS maps and masks, enabling stable pose estimation without iterative sampling. This supports real-time operation when integrated into the full NocsFM pipeline.
+The following figures present **qualitative results** at different training stages.
+
+The first pair shows the outputs after **2 000 training steps** with and without background.  
+Almost no visible changes can be observed at this early stage.
+
 ![image1](images/w2000.png)
 ![image2](images/w:o2000.png)
+
+The next pair shows the outputs after **10 000 steps**.  
+In the background-retained setting, the surrounding area gradually darkens while the center brightens,  
+indicating that the network is starting to learn **mask prediction**.  
+In contrast, the background-removed setting has already begun to learn **color reconstruction**.
+
 ![image3](images/w10000.png)
 ![image4](images/w:o10000.png)
+
+The last pair shows the outputs after **40 000 steps**.  
+Both settings achieve high-quality results that closely match the ground truth.
+
 ![image5](images/w40000.png)
 ![image6](images/w:o40000.png)
 
