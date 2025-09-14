@@ -139,14 +139,12 @@ Two losses are monitored during training:
   which predicts the latent velocity field.  
   It is defined as the mean squared error (MSE) between the predicted velocity  
   and the ground-truth derivative:
-
-  ![equation](https://latex.codecogs.com/svg.image?\mathcal{L}_{train}=\mathbb{E}_{z_t,t}\bigl\|\mathbf{v}_\theta(z_t,t)-\frac{d z_t}{d t}\bigr\|_2^2)
+![equation](https://latex.codecogs.com/svg.image?%5Cmathcal%7BL%7D_%7Btrain%7D%3D%5Cmathbb%7BE%7D_%7Bz_t%2Ct%7D%5Cbigl%5C%7C%5Cmathbf%7Bv%7D_%5Ctheta%28z_t%2Ct%29-%5Cfrac%7Bd%20z_t%7D%7Bd%20t%7D%5Cbigr%5C%7C_2%5E2)
 
 * **sample_loss** – the reconstruction loss computed after integrating the flow.  
   It measures the MSE between the predicted NOCS map  
   and the ground-truth NOCS:
-
-  ![equation](https://latex.codecogs.com/svg.image?\mathcal{L}_{sample}=\mathbb{E}_p\bigl\|\hat{\mathbf{n}}_p-\mathbf{n}_p\bigr\|_2^2)
+ ![equation](https://latex.codecogs.com/svg.image?\mathcal{L}_{sample}=\mathbb{E}_p\bigl\|\hat{\mathbf{n}}_p-\mathbf{n}_p\bigr\|_2^2)
 
 The following plots show the evolution of these two losses over **40 000 training steps**  
 for models trained **with background (red)** and **without background (blue)**:
@@ -155,7 +153,6 @@ for models trained **with background (red)** and **without background (blue)**:
 ![sample_loss](images/sample_loss.png)
 
 **Observations**
-
 * **train_loss** decreases rapidly and then stabilizes, indicating that the latent velocity field is learned effectively.  
 * **sample_loss** also drops steadily, showing improved accuracy of the final NOCS reconstruction.  
 * In both figures, removing background consistently yields lower loss, demonstrating that eliminating background clutter accelerates convergence and improves pose estimation quality.
