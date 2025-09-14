@@ -62,14 +62,14 @@ where ![equation](https://latex.codecogs.com/svg.image?\hat{\Phi}) denotes L2-no
 
 To improve matching reliability, **mutual nearest neighbor (MNN)** filtering is applied, retaining only pairs that are each other’s nearest matches:
 
-![equation](https://latex.codecogs.com/svg.image?\mathcal{M}=\{(i,j,u,v)\mid(i,j)=\arg\max_{i',j'}S_{t\to\mathrm{ref}}(u,v,i',j')\land(u,v)=\arg\max_{u',v'}S_{\mathrm{ref}\to t}(i,j,u',v')\})
+![equation](https://latex.codecogs.com/svg.image?%5Cmathcal%7BM%7D%3D%5C%7B(i%2Cj%2Cu%2Cv)%5Cmid%20(i%2Cj)%3D%5Carg%5Cmax_%7Bi%27%2Cj%27%7D%20S_%7Bt%5Cto%5Cmathrm%7Bref%7D%7D(u%2Cv%2Ci%27%2Cj%27)%20%5Cland%20(u%2Cv)%3D%5Carg%5Cmax_%7Bu%27%2Cv%27%7D%20S_%7B%5Cmathrm%7Bref%7D%5Cto%20t%7D(i%2Cj%2Cu%27%2Cv%27)%5C%7D)
 
 By thresholding the similarity map `S` and performing connected-component analysis,  
 the method obtains a foreground mask `M_t ⊆ [1,H] × [1,W]` of the target in the current frame.  
 The target center can then be computed, for example, by the bounding box of `M_t` or a soft-argmax over high-confidence regions,  
 and the corresponding object region is cropped as
 
-![equation](https://latex.codecogs.com/svg.image?I_t^{\mathrm{crop}}=I_t\odot M_t)
+![equation](https://latex.codecogs.com/svg.image?I_t%5E%7B%5Cmathrm%7Bcrop%7D%7D%3D%20I_t%20%5Codot%20M_t)
 
 This cropped image is subsequently fed to the **flow matching** module for Normalized Object Coordinate Space (NOCS) estimation and final 6D pose recovery.
 
