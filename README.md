@@ -73,35 +73,51 @@ and the corresponding object region is cropped as
 
 This cropped image is subsequently fed to the **flow matching** module for Normalized Object Coordinate Space (NOCS) estimation and final 6D pose recovery.
 ### 3.2 Flow Matching for NOCS Estimation
-The cropped object patch \(I_t^{crop}\) is fed into a **latent flow matching** network to establish dense correspondences between image observations and the **Normalized Object Coordinate Space (NOCS)**.
+After obtaining a cropped target region from the reference-based localization stage,  
+the image patch is encoded by a **Variational Autoencoder (VAE)** fine-tuned from Stable Diffusion,  
+producing an initial latent variable
 
-First, an encoder maps the cropped image to a latent representation:
+![equation](https://latex.codecogs.com/svg.image?z_0%20%3D%20%5Cmathrm%7BEnc%7D_%7B%5Cmathrm%7BVAE%7D%7D%28I_t%5E%7B%5Cmathrm%7Bcrop%7D%7D%29)
 
-![equation](https://latex.codecogs.com/svg.image?z_0%3D%20E(I_t^{%5Cmathrm{crop}}))
+which provides a compact and geometry-preserving representation.
 
-Introducing a continuous time parameter \(t\in[0,1]\), the network learns a conditional vector field that drives the temporal evolution of latent variables:
+Inside the latent space, **latent flow matching** directly learns a time-dependent vector field
 
-![equation](https://latex.codecogs.com/svg.image?%5Cmathbf%7Bv%7D_%5Ctheta(z%2Ct)%20%5Capprox%20%5Cfrac%7B%5Cpartial%20z_t%7D%7B%5Cpartial%20t%7D)
+![equation](https://latex.codecogs.com/svg.image?%5Cmathbf%7Bv%7D_%5Ctheta%28z%2Ct%29)
 
-By integrating this field in a single forward pass, the latent code is transported to a canonical representation:
+that governs the deterministic evolution of each point over continuous time
 
-![equation](https://latex.codecogs.com/svg.image?z_1%20%3D%20z_0%20%2B%20%5Cint_0%5E1%20%5Cmathbf%7Bv%7D_%5Ctheta(z_t%2Ct)%20dt)
+![equation](https://latex.codecogs.com/svg.image?%5Cfrac%7Bd%20z_t%7D%7Bd%20t%7D%20%3D%20%5Cmathbf%7Bv%7D_%5Ctheta%28z_t%2C%20t%29%2C%20%5Cquad%20t%5Cin%5B0%2C1%5D).
 
-A decoder then maps the transformed latent variable to a dense NOCS map:
+Integrating this ordinary differential equation over \([0,1]\) in a **single pass** yields the terminal latent state \(z_1\).  
+The VAE decoder then maps each terminal latent to a normalized 3D coordinate
 
-![equation](https://latex.codecogs.com/svg.image?N_t%20%3D%20D(z_1))
+![equation](https://latex.codecogs.com/svg.image?%5Cmathbf%7Bn%7D_p%20%3D%20%5Cmathrm%7BDec%7D_%7B%5Cmathrm%7BVAE%7D%7D%28z_1%28p%29%29),
 
-Simultaneously, a foreground mask is predicted:
+producing a dense **NOCS map**
 
-![equation](https://latex.codecogs.com/svg.image?M_t%20%3D%20%5Csigma(Wz_1))
+![equation](https://latex.codecogs.com/svg.image?N_t%20%3D%20%5C%7B%5Cmathbf%7Bn%7D_p%5C%7D_%7Bp%5Cin%20M_t%7D)
 
-Where  
-* `N_t` (H×W×3) is a **dense NOCS map** for accurate 6D pose recovery.  
-* `M_t` is a **foreground mask** delineating the object.
+together with a sharp **foreground mask** \(M_t\).
 
-Unlike diffusion-based methods that rely on multi-step stochastic denoising, **latent flow matching** performs the observation-to-NOCS transformation in **one deterministic pass**, ensuring both **high geometric precision** and **real-time efficiency**.
+Using the camera depth map \(D_t\), pixels inside the mask are back-projected into 3D:
 
-This one-shot process ensures precision and real-time efficiency.
+![equation](https://latex.codecogs.com/svg.image?%5Cmathbf%7Bx%7D_p%20%3D%20%5Cpi%5E%7B-1%7D%28p%2C%20D_t%28p%29%29).
+
+From the set of correspondences  
+![equation](https://latex.codecogs.com/svg.image?%5C%7B%28%5Cmathbf%7Bn%7D_p%2C%20%5Cmathbf%7Bx%7D_p%29%20%7C%20p%5Cin%20M_t%5C%7D),
+the **Umeyama least-squares algorithm** estimates the optimal similarity transform
+
+![equation](https://latex.codecogs.com/svg.image?%5Cmin_%7Bs%2C%20%5Cmathbf%7BR%7D%2C%20%5Cmathbf%7Bt%7D%7D%20%5Csum_%7Bp%5Cin%20M_t%7D%5Cbigl%5C%7C%20s%20%5Cmathbf%7BR%7D%20%5Cmathbf%7Bn%7D_p%20%2B%20%5Cmathbf%7Bt%7D%20-%20%5Cmathbf%7Bx%7D_p%20%5Cbigr%5C%7C%5E2),
+
+yielding the final **SE(3)** pose:
+
+![equation](https://latex.codecogs.com/svg.image?%5Cmathcal%7BT%7D%20%3D%20%5Cbegin%7Bbmatrix%7D%20s%20%5Cmathbf%7BR%7D%20%26%20%5Cmathbf%7Bt%7D%20%5C%5C%20%5Cmathbf%7B0%7D%5E%5Ctop%20%26%201%20%5Cend%7Bbmatrix%7D).
+
+This **VAE encoding → latent flow integration → depth registration → Umeyama alignment** pipeline  
+enables **one-shot generation** of a dense NOCS map, a foreground mask, and an accurate SE(3) pose,  
+all without requiring object-specific 3D models or category labels,  
+while ensuring **real-time efficiency and high geometric accuracy**.
 
 ### 3.3 Tracking with Mask Feedback
 The predicted foreground mask serves not merely as a per-frame output but also as a key structural component of the geometry–tracking pipeline. Firstly，by separating the object from a cluttered background at pixel-level precision, the mask provides  
