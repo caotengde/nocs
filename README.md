@@ -105,15 +105,9 @@ This one-shot process ensures precision and real-time efficiency.
 
 ### 3.3 Tracking with Mask Feedback
 The predicted foreground mask serves not merely as a per-frame output but also as a key structural component of the geometry–tracking pipeline. Firstly，by separating the object from a cluttered background at pixel-level precision, the mask provides  
-   ![equation](https://latex.codecogs.com/svg.image?high-confidence) observations for downstream **6D pose estimation**, effectively suppressing background noise and improving geometric accuracy.
+   ![equation](https://latex.codecogs.com/svg.image?high-confidence) observations for downstream 6D pose estimation, effectively suppressing background noise and improving geometric accuracy.
 Secondly，the mask is further used to automatically crop a new high-quality reference image  
-   ![equation](https://latex.codecogs.com/svg.image?I_t^{%5Cmathrm{ref}}),
-   which captures the object’s latest appearance and scale.  
-   This freshly generated reference is **fed back** into the next round of **DINOv3 cross-view feature matching**, continuously refreshing the system’s memory of the target.
-
-Through this  
-**predict-mask → update-reference → re-match**  
-cycle, **NocsFM** forms a **closed-loop, temporally adaptive tracking system** capable of long-term, fully automated operation **without manual re-initialization**, even under appearance changes or environmental disturbances.
+   ![equation](https://latex.codecogs.com/svg.image?I_t^{%5Cmathrm{ref}}),which captures the object’s latest appearance and scale.  This freshly generated reference is fed back into the next round of DINOv3 cross-view feature matching, continuously refreshing the system’s memory of the target.Through this predict-mask → update-reference → re-match cycle, **NocsFM** forms a closed-loop, temporally adaptive tracking system capable of long-term, fully automated operation without manual re-initialization, even under appearance changes or environmental disturbances.
 
 ---
 
