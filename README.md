@@ -45,36 +45,30 @@ DiffusionNOCS is a recent exploration of applying generative diffusion models to
 NocsFM achieves model-free 6D pose estimation and real-time tracking within a single unified loop, requiring only a clean reference image of the target object and the current RGB frame as input. The system first employs DINOv3 pre-trained visual features to perform cross-view matching between the reference and current frames, automatically localizing the target in cluttered scenes and establishing an initial position together with reliable inter-frame correspondences. Next, it performs geometric reasoning by integrating latent flow matching with the Normalized Object Coordinate Space (NOCS) representation, mapping image pixels in the current frame directly to a normalized 3D coordinate space and estimating the object’s 6D pose through robust Umeyama optimization. Finally, a mask-based closed-loop mechanism continuously updates the target’s position and appearance features, enabling uninterrupted real-time tracking without manual intervention. Thanks to this end-to-end design, NocsFM can deliver stable and accurate pose and trajectory estimates in dynamic, cluttered environments without any object-specific 3D models or category labels.
 
 ### 3.1 DINOv3 Matching
-Given a clean reference image \(I_{\mathrm{ref}}\) and the current RGB frame \(I_t\),  
+Given a clean reference image `I_ref` and the current RGB frame `I_t`,  
 **NocsFM** first employs **DINOv3** as a visual backbone to extract multi-scale features from both images, yielding dense feature embeddings with spatial position encoding:
-\[
-\Phi_{\mathrm{ref}}\in\mathbb{R}^{C\times H_s\times W_s},\qquad
-\Phi_{t}\in\mathbb{R}^{C\times H_s\times W_s},
-\]
-where \(C\) is the channel dimension and \(H_s, W_s\) denote the downsampled spatial resolution.
+
+![equation](https://latex.codecogs.com/svg.image?\Phi_{\mathrm{ref}}\in\mathbb{R}^{C\times H_s\times W_s},\quad\Phi_t\in\mathbb{R}^{C\times H_s\times W_s})
+
+where `C` is the channel dimension and `H_s`, `W_s` denote the downsampled spatial resolution.
 
 Next, a dense cross-image similarity map is constructed using cosine similarity:
-\[
-S(u,v) = \max_{(i,j)}
-\frac{\langle \hat{\Phi}_{\mathrm{ref}}(:,i,j),\hat{\Phi}_{t}(:,u,v)\rangle}
-{\|\hat{\Phi}_{\mathrm{ref}}(:,i,j)\|_2 \,\|\hat{\Phi}_{t}(:,u,v)\|_2},
-\]
-where \(\hat{\Phi}\) represents L2-normalized feature vectors.
+
+![equation](https://latex.codecogs.com/svg.image?S(u,v)=\max_{(i,j)}\frac{\langle\hat{\Phi}_{\mathrm{ref}}(:,i,j),\hat{\Phi}_t(:,u,v)\rangle}{\|\hat{\Phi}_{\mathrm{ref}}(:,i,j)\|_2\cdot\|\hat{\Phi}_t(:,u,v)\|_2})
+
+where ![equation](https://latex.codecogs.com/svg.image?\hat{\Phi}) denotes L2-normalized feature vectors.
 
 To improve matching reliability, **mutual nearest neighbor (MNN)** filtering is applied, retaining only pairs that are each other’s nearest matches:
-\[
-\mathcal{M} = \left\{ (i,j,u,v) \;\middle|\;
-(i,j)=\arg\max_{i',j'} S_{t\rightarrow\mathrm{ref}}(u,v,i',j') \land
-(u,v)=\arg\max_{u',v'} S_{\mathrm{ref}\rightarrow t}(i,j,u',v') \right\}.
-\]
 
-By thresholding the similarity map \(S\) and performing connected-component analysis,  
-the method obtains a foreground mask \(M_t \subseteq [1,H]\times[1,W]\) of the target in the current frame.  
-The target center \((x_t, y_t)\) can then be computed, e.g., by the bounding box of \(M_t\) or a soft-argmax over high-confidence regions,  
+![equation](https://latex.codecogs.com/svg.image?\mathcal{M}=\{(i,j,u,v)\mid(i,j)=\arg\max_{i',j'}S_{t\to\mathrm{ref}}(u,v,i',j')\land(u,v)=\arg\max_{u',v'}S_{\mathrm{ref}\to t}(i,j,u',v')\})
+
+By thresholding the similarity map `S` and performing connected-component analysis,  
+the method obtains a foreground mask `M_t ⊆ [1,H] × [1,W]` of the target in the current frame.  
+The target center can then be computed, for example, by the bounding box of `M_t` or a soft-argmax over high-confidence regions,  
 and the corresponding object region is cropped as
-\[
-I_t^{\mathrm{crop}} = I_t \odot M_t.
-\]
+
+![equation](https://latex.codecogs.com/svg.image?I_t^{\mathrm{crop}}=I_t\odot M_t)
+
 This cropped image is subsequently fed to the **flow matching** module for Normalized Object Coordinate Space (NOCS) estimation and final 6D pose recovery.
 
 Crucially, this dense matching–cropping–flow-matching pipeline is **category-agnostic** and requires **no predefined templates or class labels**,  
