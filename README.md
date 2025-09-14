@@ -130,15 +130,10 @@ Secondly，the mask is further used to automatically crop a new high-quality ref
 ## 4. Experimental Evaluation
 
 ### 4.1 Setup
-Experiments were conducted on a workstation with:
-- NVIDIA RTX 3090 GPU (24 GB memory)
-- Intel Xeon 3.0 GHz CPU
-- 128 GB RAM
+The experiments were carried out on an NVIDIA RTX 4090 GPU (24 GB memory).The entire method is implemented in PyTorch, where DINOv3 is used for feature extraction.
+The flow matching network was trained for 40 000 steps on the CAMERA275 dataset, and the overall method was subsequently trained and evaluated on the CAMERA dataset.
+### 4.2 Comparison of training
 
-The method is implemented in PyTorch, using DINOv3 for feature extraction and a customized flow matching network for NOCS prediction and pose estimation. Training and evaluation were performed on the **CAMERA** dataset.
-
-### 4.2 Evaluation of DINOv3 Matching
-DINOv3, trained with a reference-to-frame matching objective, demonstrated robust object localization across diverse conditions, confirming its effectiveness as the first stage of NocsFM.
 
 ### 4.3 Evaluation of Flow Matching for Pose Estimation
 Flow matching accurately predicted dense NOCS maps and masks, enabling stable pose estimation without iterative sampling. This supports real-time operation when integrated into the full NocsFM pipeline.
