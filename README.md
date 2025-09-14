@@ -72,14 +72,34 @@ and the corresponding object region is cropped as
 ![equation](https://latex.codecogs.com/svg.image?I_t%5E%7B%5Cmathrm%7Bcrop%7D%7D%3D%20I_t%20%5Codot%20M_t)
 
 This cropped image is subsequently fed to the **flow matching** module for Normalized Object Coordinate Space (NOCS) estimation and final 6D pose recovery.
-
-Crucially, this dense matching–cropping–flow-matching pipeline is **category-agnostic** and requires **no predefined templates or class labels**,  
-providing strong generalization for tracking and pose estimation of previously unseen objects.
-
 ### 3.2 Flow Matching for NOCS Estimation
-The cropped object patch is fed into a flow matching network to estimate dense correspondence between object surface and NOCS. Unlike diffusion-based approaches, flow matching performs the transformation in a single pass, producing:
-- A dense **NOCS map** for 6D pose recovery.
-- A **foreground mask** delineating the object.
+The cropped object patch \(I_t^{crop}\) is fed into a **latent flow matching** network to establish dense correspondences between image observations and the **Normalized Object Coordinate Space (NOCS)**.
+
+First, an encoder maps the cropped image to a latent representation:
+
+![equation](https://latex.codecogs.com/svg.image?z_0%3D%20E(I_t^{%5Cmathrm{crop}}))
+
+Introducing a continuous time parameter \(t\in[0,1]\), the network learns a conditional vector field that drives the temporal evolution of latent variables:
+
+![equation](https://latex.codecogs.com/svg.image?%5Cmathbf%7Bv%7D_%5Ctheta(z%2Ct)%20%5Capprox%20%5Cfrac%7B%5Cpartial%20z_t%7D%7B%5Cpartial%20t%7D)
+
+By integrating this field in a single forward pass, the latent code is transported to a canonical representation:
+
+![equation](https://latex.codecogs.com/svg.image?z_1%20%3D%20z_0%20%2B%20%5Cint_0%5E1%20%5Cmathbf%7Bv%7D_%5Ctheta(z_t%2Ct)%20dt)
+
+A decoder then maps the transformed latent variable to a dense NOCS map:
+
+![equation](https://latex.codecogs.com/svg.image?N_t%20%3D%20D(z_1))
+
+Simultaneously, a foreground mask is predicted:
+
+![equation](https://latex.codecogs.com/svg.image?M_t%20%3D%20%5Csigma(Wz_1))
+
+Where  
+* `N_t` (H×W×3) is a **dense NOCS map** for accurate 6D pose recovery.  
+* `M_t` is a **foreground mask** delineating the object.
+
+Unlike diffusion-based methods that rely on multi-step stochastic denoising, **latent flow matching** performs the observation-to-NOCS transformation in **one deterministic pass**, ensuring both **high geometric precision** and **real-time efficiency**.
 
 This one-shot process ensures precision and real-time efficiency.
 
@@ -90,8 +110,6 @@ The predicted mask:
 
 This feedback mechanism forms a closed-loop system for long-term, automated tracking without manual re-initialization.
 
-### 3.4 Summary
-By integrating DINOv3 visual features, one-shot flow matching for NOCS estimation, and mask-based tracking, **NocsFM** provides a simple yet effective solution for category-level 6D pose estimation. The pipeline operates in real time and requires only a single initial reference image.
 
 ---
 
