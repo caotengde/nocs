@@ -133,8 +133,37 @@ Secondly，the mask is further used to automatically crop a new high-quality ref
 The experiments were carried out on an NVIDIA RTX 4090 GPU (24 GB memory).The entire method is implemented in PyTorch, where DINOv3 is used for feature extraction.
 The flow matching network was trained for 40 000 steps on the CAMERA275 dataset, and the overall method was subsequently trained and evaluated on the CAMERA dataset.
 ### 4.2 Comparison of training
-![training](images/train_loss.png)
-![training](images/sample_loss.png)
+We report two types of losses during training:
+
+* **train\_loss** – the intrinsic loss of the **flow matching** network,  
+  which predicts the velocity field of latent trajectories.  
+  It is defined as the mean squared error (MSE) between the predicted velocity  
+  \(\mathbf{v}_\theta(z_t,t)\) and the ground-truth derivative \(\frac{d z_t}{d t}\):
+  
+  ![equation](https://latex.codecogs.com/svg.image?%5Cmathcal%7BL%7D_%7Btrain%7D%20%3D%20%5Cmathbb%7BE%7D_%7Bz_t%2Ct%7D%5Cbigl%5C%7C%5Cmathbf%7Bv%7D_%5Ctheta%28z_t%2Ct%29%20-%20%5Cfrac%7Bd%20z_t%7D%7Bd%20t%7D%5Cbigr%5C%7C_2%5E2)
+
+* **sample\_loss** – the reconstruction loss that evaluates the final prediction  
+  after integrating the flow.  
+  It measures the MSE between the predicted terminal latent \(z_1\)  
+  (or the decoded NOCS map \(\hat{\mathbf{n}}_p\)) and the ground-truth NOCS \(\mathbf{n}_p\):
+  
+  ![equation](https://latex.codecogs.com/svg.image?%5Cmathcal%7BL%7D_%7Bsample%7D%20%3D%20%5Cmathbb%7BE%7D_p%20%5Cbigl%5C%7C%5Chat%7B%5Cmathbf%7Bn%7D%7D_p%20-%20%5Cmathbf%7Bn%7D_p%5Cbigr%5C%7C_2%5E2)
+
+The following plots show the evolution of the two losses over **40 000 training steps**  
+for models trained **with background (red)** and **without background (blue)**:
+
+![train_loss](images/train_loss.png)
+![sample_loss](images/sample_loss.png)
+
+**Observations**
+
+* The **train\_loss** curves decrease rapidly at the beginning and then stabilize,  
+  indicating that the latent velocity field is learned effectively.
+* The **sample\_loss** also drops steadily, showing improved accuracy  
+  of the final NOCS reconstruction.
+* In both figures, the *without background* setting consistently yields lower loss,  
+  demonstrating that removing distracting background information  
+  accelerates convergence and leads to better pose estimation quality.
 ### 4.3 Evaluation of Flow Matching for Pose Estimation
 Flow matching accurately predicted dense NOCS maps and masks, enabling stable pose estimation without iterative sampling. This supports real-time operation when integrated into the full NocsFM pipeline.
 ![image1](images/w2000.png)
