@@ -1,7 +1,7 @@
 # NocsFM: One-Shot Flow Matching for NOCS-Based 6D Pose Estimation
 
 ## Abstract
-Accurate pose estimation and tracking are crucial for physical AI systems such as robots; however, existing methods often fail to quantify the uncertainty of their predictions. To address this limitation, we propose **NocsFM**, a novel pose estimation framework. Our approach leverages NOCS maps as the pose representation and employs Flow Matching to generate the final NOCS map. Subsequently, pose estimation is obtained through point cloud registration using Umelaya. By performing multiple inferences, our method is able to capture uncertainty across different dimensions, thereby enabling robust uncertainty quantification for symmetric object pose estimation.
+Accurate pose estimation and tracking are crucial for physical AI systems such as robots. However, existing methods typically require a predefined model or category. In addition, they often rely on manually annotated segmentation masks of the target in the first frame, which is labor-intensive and leads to degraded performance when facing occlusion or fast motion.To address these issues, we propose NocsFM — a novel pose estimation framework. This system adopts a two-stage pipeline that integrates object detection and pose estimation. It can simultaneously detect the target object’s position and generate its mask and NOCS map. The map is then aligned using Umelaya for point-cloud registration to obtain the pose estimation. NocsFM is trained on the Camera dataset and achieves excellent performance.
 
 ---
 ![workflow](images/workflow.png)
